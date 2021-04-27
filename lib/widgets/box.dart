@@ -5,11 +5,11 @@ import '../models/documents/nodes/container.dart';
 abstract class RenderContentProxyBox implements RenderBox {
   double getPreferredLineHeight();
 
-  Offset getOffsetForCaret(TextPosition position, Rect? caretPrototype);
+  Offset getOffsetForCaret(TextPosition position, Rect caretPrototype);
 
   TextPosition getPositionForOffset(Offset offset);
 
-  double? getFullHeightForCaret(TextPosition position);
+  double getFullHeightForCaret(TextPosition position);
 
   TextRange getWordBoundary(TextPosition position);
 
@@ -25,9 +25,9 @@ abstract class RenderEditableBox extends RenderBox {
 
   TextPosition getPositionForOffset(Offset offset);
 
-  TextPosition? getPositionAbove(TextPosition position);
+  TextPosition getPositionAbove(TextPosition position);
 
-  TextPosition? getPositionBelow(TextPosition position);
+  TextPosition getPositionBelow(TextPosition position);
 
   TextRange getWordBoundary(TextPosition position);
 

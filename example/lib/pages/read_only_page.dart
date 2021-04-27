@@ -29,9 +29,9 @@ class _ReadOnlyPageState extends State<ReadOnlyPage> {
     );
   }
 
-  Widget _buildContent(BuildContext context, QuillController? controller) {
+  Widget _buildContent(BuildContext context, QuillController controller) {
     var quillEditor = QuillEditor(
-      controller: controller!,
+      controller: controller,
       scrollController: ScrollController(),
       scrollable: true,
       focusNode: _focusNode,

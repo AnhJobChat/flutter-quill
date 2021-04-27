@@ -12,7 +12,7 @@ import 'node.dart';
 /// forwards operation to that child.
 ///
 /// Most of the operation handling logic is implemented by [Line] and [Text].
-abstract class Container<T extends Node?> extends Node {
+abstract class Container<T extends Node> extends Node {
   final LinkedList<Node> _children = LinkedList<Node>();
 
   /// List of children.
@@ -44,30 +44,30 @@ abstract class Container<T extends Node?> extends Node {
   void add(T node) {
     assert(node?.parent == null);
     node?.parent = this;
-    _children.add(node as Node);
+    _children.add(node);
   }
 
   /// Adds [node] to the beginning of this container children list.
   void addFirst(T node) {
     assert(node?.parent == null);
     node?.parent = this;
-    _children.addFirst(node as Node);
+    _children.addFirst(node);
   }
 
   /// Removes [node] from this container.
   void remove(T node) {
     assert(node?.parent == this);
     node?.parent = null;
-    _children.remove(node as Node);
+    _children.remove(node);
   }
 
   /// Moves children of this node to [newParent].
-  void moveChildToNewParent(Container? newParent) {
+  void moveChildToNewParent(Container newParent) {
     if (isEmpty) {
       return;
     }
 
-    final last = newParent!.isEmpty ? null : newParent.last as T?;
+    final last = newParent.isEmpty ? null : newParent.last as T;
     while (isNotEmpty) {
       final child = first as T;
       child?.unlink();
@@ -112,12 +112,12 @@ abstract class Container<T extends Node?> extends Node {
   int get length => _children.fold(0, (cur, node) => cur + node.length);
 
   @override
-  void insert(int index, Object data, Style? style) {
+  void insert(int index, Object data, Style style) {
     assert(index == 0 || (index > 0 && index < length));
 
     if (isNotEmpty) {
       final child = queryChild(index, false);
-      child.node!.insert(child.offset, data, style);
+      child.node.insert(child.offset, data, style);
       return;
     }
 
@@ -129,17 +129,17 @@ abstract class Container<T extends Node?> extends Node {
   }
 
   @override
-  void retain(int index, int? length, Style? attributes) {
+  void retain(int index, int length, Style attributes) {
     assert(isNotEmpty);
     final child = queryChild(index, false);
-    child.node!.retain(child.offset, length, attributes);
+    child.node.retain(child.offset, length, attributes);
   }
 
   @override
-  void delete(int index, int? length) {
+  void delete(int index, int length) {
     assert(isNotEmpty);
     final child = queryChild(index, false);
-    child.node!.delete(child.offset, length);
+    child.node.delete(child.offset, length);
   }
 
   @override
@@ -151,7 +151,7 @@ class ChildQuery {
   ChildQuery(this.node, this.offset);
 
   /// The child node if found, otherwise `null`.
-  final Node? node;
+  final Node node;
 
   /// Starting offset within the child [node] which points at the same
   /// character in the document as the original offset passed to

@@ -13,7 +13,7 @@ import 'node.dart';
 /// - Text Alignment
 /// - Text Direction
 /// - Code Block
-class Block extends Container<Line?> {
+class Block extends Container<Line> {
   /// Creates new unmounted [Block].
   @override
   Node newInstance() => Block();
@@ -23,9 +23,7 @@ class Block extends Container<Line?> {
 
   @override
   Delta toDelta() {
-    return children
-        .map((child) => child.toDelta())
-        .fold(Delta(), (a, b) => a.concat(b));
+    return children.map((child) => child.toDelta()).fold(Delta(), (a, b) => a.concat(b));
   }
 
   @override
@@ -42,17 +40,15 @@ class Block extends Container<Line?> {
     var block = this;
     final prev = block.previous;
     // merging it with previous block if style is the same
-    if (!block.isFirst &&
-        block.previous is Block &&
-        prev!.style == block.style) {
+    if (!block.isFirst && block.previous is Block && prev.style == block.style) {
       block
-        ..moveChildToNewParent(prev as Container<Node?>?)
+        ..moveChildToNewParent(prev as Container<Node>)
         ..unlink();
       block = prev as Block;
     }
     final next = block.next;
     // merging it with next block if style is the same
-    if (!block.isLast && block.next is Block && next!.style == block.style) {
+    if (!block.isLast && block.next is Block && next.style == block.style) {
       (next as Block).moveChildToNewParent(block);
       next.unlink();
     }

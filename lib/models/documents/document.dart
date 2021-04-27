@@ -40,24 +40,22 @@ class Document {
 
   final Rules _rules = Rules.getInstance();
 
-  final StreamController<Tuple3<Delta, Delta, ChangeSource>> _observer =
-      StreamController.broadcast();
+  final StreamController<Tuple3<Delta, Delta, ChangeSource>> _observer = StreamController.broadcast();
 
   final History _history = History();
 
   Stream<Tuple3<Delta, Delta, ChangeSource>> get changes => _observer.stream;
 
-  Delta insert(int index, Object? data, {int replaceLength = 0}) {
+  Delta insert(int index, Object data, {int replaceLength = 0}) {
     assert(index >= 0);
     assert(data is String || data is Embeddable);
     if (data is Embeddable) {
-      data = data.toJson();
+      data = (data as Embeddable).toJson();
     } else if ((data as String).isEmpty) {
       return Delta();
     }
 
-    final delta = _rules.apply(RuleType.INSERT, this, index,
-        data: data, len: replaceLength);
+    final delta = _rules.apply(RuleType.INSERT, this, index, data: data, len: replaceLength);
     compose(delta, ChangeSource.LOCAL);
     return delta;
   }
@@ -71,7 +69,7 @@ class Document {
     return delta;
   }
 
-  Delta replace(int index, int len, Object? data) {
+  Delta replace(int index, int len, Object data) {
     assert(index >= 0);
     assert(data is String || data is Embeddable);
 
@@ -95,13 +93,12 @@ class Document {
     return delta;
   }
 
-  Delta format(int index, int len, Attribute? attribute) {
+  Delta format(int index, int len, Attribute attribute) {
     assert(index >= 0 && len >= 0 && attribute != null);
 
     var delta = Delta();
 
-    final formatDelta = _rules.apply(RuleType.FORMAT, this, index,
-        len: len, attribute: attribute);
+    final formatDelta = _rules.apply(RuleType.FORMAT, this, index, len: len, attribute: attribute);
     if (formatDelta.isNotEmpty) {
       compose(formatDelta, ChangeSource.LOCAL);
       delta = delta.compose(formatDelta);
@@ -133,8 +130,7 @@ class Document {
     delta = _transform(delta);
     final originalDelta = toDelta();
     for (final op in delta.toList()) {
-      final style =
-          op.attributes != null ? Style.fromJson(op.attributes) : null;
+      final style = op.attributes != null ? Style.fromJson(op.attributes) : null;
 
       if (op.isInsert) {
         _root.insert(offset, _normalize(op.data), style);
@@ -145,7 +141,7 @@ class Document {
       }
 
       if (!op.isDelete) {
-        offset += op.length!;
+        offset += op.length;
       }
     }
     try {
@@ -185,11 +181,9 @@ class Document {
     return res;
   }
 
-  static void _handleImageInsert(
-      int i, List<Operation> ops, Operation op, Delta res) {
-    final nextOpIsImage =
-        i + 1 < ops.length && ops[i + 1].isInsert && ops[i + 1].data is! String;
-    if (nextOpIsImage && !(op.data as String).endsWith('\n')) {
+  static void _handleImageInsert(int i, List<Operation> ops, Operation op, Delta res) {
+    final nextOpIsImage = i + 1 < ops.length && ops[i + 1].isInsert && ops[i + 1].data is! String;
+    if (nextOpIsImage && (op.data as String).endsWith('\n')) {
       res.push(Operation.insert('\n'));
     }
     // Currently embed is equivalent to image and hence `is! String`
@@ -204,7 +198,7 @@ class Document {
     }
   }
 
-  Object _normalize(Object? data) {
+  Object _normalize(Object data) {
     if (data is String) {
       return data;
     }
@@ -232,20 +226,15 @@ class Document {
     var offset = 0;
     for (final op in doc.toList()) {
       if (!op.isInsert) {
-        throw ArgumentError.value(doc,
-            'Document Delta can only contain insert operations but ${op.key} found.');
+        throw ArgumentError.value(doc, 'Document Delta can only contain insert operations but ${op.key} found.');
       }
-      final style =
-          op.attributes != null ? Style.fromJson(op.attributes) : null;
+      final style = op.attributes != null ? Style.fromJson(op.attributes) : null;
       final data = _normalize(op.data);
       _root.insert(offset, data, style);
-      offset += op.length!;
+      offset += op.length;
     }
     final node = _root.last;
-    if (node is Line &&
-        node.parent is! Block &&
-        node.style.isEmpty &&
-        _root.childCount > 1) {
+    if (node is Line && node.parent is! Block && node.style.isEmpty && _root.childCount > 1) {
       _root.remove(node);
     }
   }
@@ -261,9 +250,7 @@ class Document {
     }
 
     final delta = node.toDelta();
-    return delta.length == 1 &&
-        delta.first.data == '\n' &&
-        delta.first.key == 'insert';
+    return delta.length == 1 && delta.first.data == '\n' && delta.first.key == 'insert';
   }
 }
 

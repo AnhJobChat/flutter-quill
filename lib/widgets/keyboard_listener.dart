@@ -5,7 +5,7 @@ enum InputShortcut { CUT, COPY, PASTE, SELECT_ALL }
 
 typedef CursorMoveCallback = void Function(
     LogicalKeyboardKey key, bool wordModifier, bool lineModifier, bool shift);
-typedef InputShortcutCallback = void Function(InputShortcut? shortcut);
+typedef InputShortcutCallback = void Function(InputShortcut shortcut);
 typedef OnDeleteCallback = void Function(bool forward);
 
 class KeyboardListener {
@@ -42,8 +42,7 @@ class KeyboardListener {
     LogicalKeyboardKey.alt,
   };
 
-  static final Set<LogicalKeyboardKey> _macOsModifierKeys =
-      <LogicalKeyboardKey>{
+  static final Set<LogicalKeyboardKey> _macOsModifierKeys = <LogicalKeyboardKey>{
     LogicalKeyboardKey.shift,
     LogicalKeyboardKey.meta,
     LogicalKeyboardKey.alt,
@@ -72,28 +71,19 @@ class KeyboardListener {
       return false;
     }
 
-    final keysPressed =
-        LogicalKeyboardKey.collapseSynonyms(RawKeyboard.instance.keysPressed);
+    final keysPressed = LogicalKeyboardKey.collapseSynonyms(RawKeyboard.instance.keysPressed);
     final key = event.logicalKey;
     final isMacOS = event.data is RawKeyEventDataMacOs;
     if (!_nonModifierKeys.contains(key) ||
-        keysPressed
-                .difference(isMacOS ? _macOsModifierKeys : _modifierKeys)
-                .length >
-            1 ||
+        keysPressed.difference(isMacOS ? _macOsModifierKeys : _modifierKeys).length > 1 ||
         keysPressed.difference(_interestingKeys).isNotEmpty) {
       return false;
     }
 
     if (_moveKeys.contains(key)) {
-      onCursorMove(
-          key,
-          isMacOS ? event.isAltPressed : event.isControlPressed,
-          isMacOS ? event.isMetaPressed : event.isAltPressed,
-          event.isShiftPressed);
-    } else if (isMacOS
-        ? event.isMetaPressed
-        : event.isControlPressed && _shortcutKeys.contains(key)) {
+      onCursorMove(key, isMacOS ? event.isAltPressed : event.isControlPressed,
+          isMacOS ? event.isMetaPressed : event.isAltPressed, event.isShiftPressed);
+    } else if (isMacOS ? event.isMetaPressed : event.isControlPressed && _shortcutKeys.contains(key)) {
       onShortcut(_keyToShortcut[key]);
     } else if (key == LogicalKeyboardKey.delete) {
       onDelete(true);

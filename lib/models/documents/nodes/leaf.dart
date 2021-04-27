@@ -27,13 +27,12 @@ abstract class Leaf extends Node {
 
   @override
   void applyStyle(Style value) {
-    assert(value.isInline || value.isIgnored || value.isEmpty,
-        'Unable to apply Style to leaf: $value');
+    assert(value.isInline || value.isIgnored || value.isEmpty, 'Unable to apply Style to leaf: $value');
     super.applyStyle(value);
   }
 
   @override
-  Line? get parent => super.parent as Line?;
+  Line get parent => super.parent as Line;
 
   @override
   int get length {
@@ -46,17 +45,16 @@ abstract class Leaf extends Node {
 
   @override
   Delta toDelta() {
-    final data =
-        _value is Embeddable ? (_value as Embeddable).toJson() : _value;
+    final data = _value is Embeddable ? (_value as Embeddable).toJson() : _value;
     return Delta()..insert(data, style.toJson());
   }
 
   @override
-  void insert(int index, Object data, Style? style) {
+  void insert(int index, Object data, Style style) {
     assert(index >= 0 && index <= length);
     final node = Leaf(data);
     if (index < length) {
-      splitAt(index)!.insertBefore(node);
+      splitAt(index).insertBefore(node);
     } else {
       insertAfter(node);
     }
@@ -64,36 +62,36 @@ abstract class Leaf extends Node {
   }
 
   @override
-  void retain(int index, int? len, Style? style) {
+  void retain(int index, int len, Style style) {
     if (style == null) {
       return;
     }
 
-    final local = math.min(length - index, len!);
+    final local = math.min(length - index, len);
     final remain = len - local;
     final node = _isolate(index, local);
 
     if (remain > 0) {
       assert(node.next != null);
-      node.next!.retain(0, remain, style);
+      node.next.retain(0, remain, style);
     }
     node.format(style);
   }
 
   @override
-  void delete(int index, int? len) {
+  void delete(int index, int len) {
     assert(index < length);
 
-    final local = math.min(length - index, len!);
+    final local = math.min(length - index, len);
     final target = _isolate(index, local);
-    final prev = target.previous as Leaf?;
-    final next = target.next as Leaf?;
+    final prev = target.previous as Leaf;
+    final next = target.next as Leaf;
     target.unlink();
 
     final remain = len - local;
     if (remain > 0) {
       assert(next != null);
-      next!.delete(0, remain);
+      next.delete(0, remain);
     }
 
     if (prev != null) {
@@ -142,13 +140,13 @@ abstract class Leaf extends Node {
   ///
   /// In case a new node is actually split from this one, it inherits this
   /// node's style.
-  Leaf? splitAt(int index) {
+  Leaf splitAt(int index) {
     assert(index >= 0 && index <= length);
     if (index == 0) {
       return this;
     }
     if (index == length) {
-      return isLast ? null : next as Leaf?;
+      return isLast ? null : next as Leaf;
     }
 
     assert(this is Text);
@@ -164,7 +162,7 @@ abstract class Leaf extends Node {
   ///
   /// Splitting logic is identical to one described in [splitAt], meaning this
   /// method may return `null`.
-  Leaf? cutAt(int index) {
+  Leaf cutAt(int index) {
     assert(index >= 0 && index <= length);
     final cut = splitAt(index);
     cut?.unlink();
@@ -172,7 +170,7 @@ abstract class Leaf extends Node {
   }
 
   /// Formats this node and optimizes it with adjacent leaf nodes if needed.
-  void format(Style? style) {
+  void format(Style style) {
     if (style != null && style.isNotEmpty) {
       applyStyle(style);
     }
@@ -182,14 +180,13 @@ abstract class Leaf extends Node {
   /// Isolates a new leaf starting at [index] with specified [length].
   ///
   /// Splitting logic is identical to one described in [splitAt], with one
-  /// exception that it is required for [index] to always be less than this
+  /// exception that it is @required for [index] to always be less than this
   /// node's length. As a result this method always returns a [LeafNode]
   /// instance. Returned node may still be the same as this node
   /// if provided [index] is `0`.
   Leaf _isolate(int index, int length) {
-    assert(
-        index >= 0 && index < this.length && (index + length <= this.length));
-    final target = splitAt(index)!..splitAt(length);
+    assert(index >= 0 && index < this.length && (index + length <= this.length));
+    final target = splitAt(index)..splitAt(length);
     return target;
   }
 }

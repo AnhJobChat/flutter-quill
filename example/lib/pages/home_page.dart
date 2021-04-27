@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/models/documents/document.dart';
+import 'package:flutter_quill/utils/html_converter.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
@@ -24,30 +24,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  QuillController? _controller;
+  QuillController _controller;
   final FocusNode _focusNode = FocusNode();
+  HTMLDeltaConverter _converter;
 
   @override
   void initState() {
     super.initState();
+    _converter = const HTMLDeltaConverter();
     _loadFromAssets();
   }
 
   Future<void> _loadFromAssets() async {
-    try {
-      final result = await rootBundle.loadString('assets/sample_data.json');
-      final doc = Document.fromJson(jsonDecode(result));
-      setState(() {
-        _controller = QuillController(
-            document: doc, selection: const TextSelection.collapsed(offset: 0));
-      });
-    } catch (error) {
-      final doc = Document()..insert(0, 'Empty asset');
-      setState(() {
-        _controller = QuillController(
-            document: doc, selection: const TextSelection.collapsed(offset: 0));
-      });
-    }
+    // try {
+    //   final result = await rootBundle.loadString('assets/sample_data.json');
+    //   final doc = Document.fromJson(jsonDecode(result));
+    //   setState(() {
+    //     _controller = QuillController(document: doc, selection: const TextSelection.collapsed(offset: 0));
+    //   });
+    // } catch (error) {
+    //   final doc = Document()..insert(0, 'Empty asset');
+    //   setState(() {
+    //     _controller = QuillController(document: doc, selection: const TextSelection.collapsed(offset: 0));
+    //   });
+    // }
+    final delta = _converter.decode('<b>ab<i>c</i></b>\n');
+    final document = Document.fromDelta(delta);
+    _controller = QuillController(document: document, selection: const TextSelection.collapsed(offset: 0));
   }
 
   @override
@@ -67,8 +70,7 @@ class _HomePageState extends State<HomePage> {
         actions: [],
       ),
       drawer: Container(
-        constraints:
-            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
         color: Colors.grey.shade800,
         child: _buildMenuBar(context),
       ),
@@ -76,15 +78,10 @@ class _HomePageState extends State<HomePage> {
         focusNode: FocusNode(),
         onKey: (event) {
           if (event.data.isControlPressed && event.character == 'b') {
-            if (_controller!
-                .getSelectionStyle()
-                .attributes
-                .keys
-                .contains('bold')) {
-              _controller!
-                  .formatSelection(Attribute.clone(Attribute.bold, null));
+            if (_controller.getSelectionStyle().attributes.keys.contains('bold')) {
+              _controller.formatSelection(Attribute.clone(Attribute.bold, null));
             } else {
-              _controller!.formatSelection(Attribute.bold);
+              _controller.formatSelection(Attribute.bold);
             }
           }
         },
@@ -95,7 +92,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildWelcomeEditor(BuildContext context) {
     var quillEditor = QuillEditor(
-        controller: _controller!,
+        controller: _controller,
         scrollController: ScrollController(),
         scrollable: true,
         focusNode: _focusNode,
@@ -119,7 +116,7 @@ class _HomePageState extends State<HomePage> {
         ));
     if (kIsWeb) {
       quillEditor = QuillEditor(
-          controller: _controller!,
+          controller: _controller,
           scrollController: ScrollController(),
           scrollable: true,
           focusNode: _focusNode,
@@ -158,16 +155,11 @@ class _HomePageState extends State<HomePage> {
           kIsWeb
               ? Expanded(
                   child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  child: QuillToolbar.basic(
-                      controller: _controller!,
-                      onImagePickCallback: _onImagePickCallback),
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  child: QuillToolbar.basic(controller: _controller, onImagePickCallback: _onImagePickCallback),
                 ))
               : Container(
-                  child: QuillToolbar.basic(
-                      controller: _controller!,
-                      onImagePickCallback: _onImagePickCallback),
+                  child: QuillToolbar.basic(controller: _controller, onImagePickCallback: _onImagePickCallback),
                 ),
         ],
       ),
@@ -179,8 +171,7 @@ class _HomePageState extends State<HomePage> {
   Future<String> _onImagePickCallback(File file) async {
     // Copies the picked file from temporary cache to applications directory
     final appDocDir = await getApplicationDocumentsDirectory();
-    final copiedFile =
-        await file.copy('${appDocDir.path}/${basename(file.path)}');
+    final copiedFile = await file.copy('${appDocDir.path}/${basename(file.path)}');
     return copiedFile.path.toString();
   }
 

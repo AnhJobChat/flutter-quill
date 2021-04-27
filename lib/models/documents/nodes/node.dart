@@ -17,16 +17,16 @@ import 'line.dart';
 /// The current parent node is exposed by the [parent] property.
 abstract class Node extends LinkedListEntry<Node> {
   /// Current parent of this node. May be null if this node is not mounted.
-  Container? parent;
+  Container parent;
 
   Style get style => _style;
   Style _style = Style();
 
   /// Returns `true` if this node is the first node in the [parent] list.
-  bool get isFirst => list!.first == this;
+  bool get isFirst => list.first == this;
 
   /// Returns `true` if this node is the last node in the [parent] list.
-  bool get isLast => list!.last == this;
+  bool get isLast => list.last == this;
 
   /// Length of this node in characters.
   int get length;
@@ -45,7 +45,7 @@ abstract class Node extends LinkedListEntry<Node> {
 
     var cur = this;
     do {
-      cur = cur.previous!;
+      cur = cur.previous;
       offset += cur.length;
     } while (!cur.isFirst);
     return offset;
@@ -53,7 +53,7 @@ abstract class Node extends LinkedListEntry<Node> {
 
   /// Offset in characters of this node in the document.
   int get documentOffset {
-    final parentOffset = (parent is! Root) ? parent!.documentOffset : 0;
+    final parentOffset = (parent is! Root) ? parent.documentOffset : 0;
     return parentOffset + offset;
   }
 
@@ -107,25 +107,23 @@ abstract class Node extends LinkedListEntry<Node> {
 
   Delta toDelta();
 
-  void insert(int index, Object data, Style? style);
+  void insert(int index, Object data, Style style);
 
-  void retain(int index, int? len, Style? style);
+  void retain(int index, int len, Style style);
 
-  void delete(int index, int? len);
+  void delete(int index, int len);
 
   /// abstract methods end
 }
 
 /// Root node of document tree.
-class Root extends Container<Container<Node?>> {
+class Root extends Container<Container<Node>> {
   @override
   Node newInstance() => Root();
 
   @override
-  Container<Node?> get defaultChild => Line();
+  Container<Node> get defaultChild => Line();
 
   @override
-  Delta toDelta() => children
-      .map((child) => child.toDelta())
-      .fold(Delta(), (a, b) => a.concat(b));
+  Delta toDelta() => children.map((child) => child.toDelta()).fold(Delta(), (a, b) => a.concat(b));
 }

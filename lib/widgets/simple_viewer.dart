@@ -23,7 +23,7 @@ import 'text_line.dart';
 
 class QuillSimpleViewer extends StatefulWidget {
   const QuillSimpleViewer({
-    required this.controller,
+    @required this.controller,
     this.customStyles,
     this.truncate = false,
     this.truncateScale,
@@ -33,7 +33,7 @@ class QuillSimpleViewer extends StatefulWidget {
     this.scrollBottomInset = 0,
     this.padding = EdgeInsets.zero,
     this.embedBuilder,
-    Key? key,
+    Key key,
   })  : assert(truncate ||
             ((truncateScale == null) &&
                 (truncateAlignment == null) &&
@@ -42,27 +42,26 @@ class QuillSimpleViewer extends StatefulWidget {
         super(key: key);
 
   final QuillController controller;
-  final DefaultStyles? customStyles;
+  final DefaultStyles customStyles;
   final bool truncate;
-  final double? truncateScale;
-  final Alignment? truncateAlignment;
-  final double? truncateHeight;
-  final double? truncateWidth;
+  final double truncateScale;
+  final Alignment truncateAlignment;
+  final double truncateHeight;
+  final double truncateWidth;
   final double scrollBottomInset;
   final EdgeInsetsGeometry padding;
-  final EmbedBuilder? embedBuilder;
+  final EmbedBuilder embedBuilder;
 
   @override
   _QuillSimpleViewerState createState() => _QuillSimpleViewerState();
 }
 
-class _QuillSimpleViewerState extends State<QuillSimpleViewer>
-    with SingleTickerProviderStateMixin {
-  late DefaultStyles _styles;
+class _QuillSimpleViewerState extends State<QuillSimpleViewer> with SingleTickerProviderStateMixin {
+  DefaultStyles _styles;
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
   final LayerLink _endHandleLayerLink = LayerLink();
-  late CursorCont _cursorCont;
+  CursorCont _cursorCont;
 
   @override
   void initState() {
@@ -86,12 +85,10 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
     super.didChangeDependencies();
     final parentStyles = QuillStyles.getStyles(context, true);
     final defaultStyles = DefaultStyles.getInstance(context);
-    _styles = (parentStyles != null)
-        ? defaultStyles.merge(parentStyles)
-        : defaultStyles;
+    _styles = (parentStyles != null) ? defaultStyles.merge(parentStyles) : defaultStyles;
 
     if (widget.customStyles != null) {
-      _styles = _styles.merge(widget.customStyles!);
+      _styles = _styles.merge(widget.customStyles);
     }
   }
 
@@ -108,8 +105,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
                 ? Image.memory(base64.decode(imageUrl))
                 : Image.file(io.File(imageUrl));
       default:
-        throw UnimplementedError(
-            'Embeddable type "${node.value.type}" is not supported by default embed '
+        throw UnimplementedError('Embeddable type "${node.value.type}" is not supported by default embed '
             'builder of QuillEditor. You must pass your own builder function to '
             'embedBuilder property of QuillEditor or QuillField widgets.');
     }
@@ -157,20 +153,18 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
                 widthFactor: widget.truncateScale,
                 alignment: widget.truncateAlignment ?? Alignment.topLeft,
                 child: Container(
-                    width: widget.truncateWidth! / widget.truncateScale!,
+                    width: widget.truncateWidth / widget.truncateScale,
                     child: SingleChildScrollView(
                         physics: const NeverScrollableScrollPhysics(),
                         child: Transform.scale(
-                            scale: widget.truncateScale!,
-                            alignment:
-                                widget.truncateAlignment ?? Alignment.topLeft,
+                            scale: widget.truncateScale,
+                            alignment: widget.truncateAlignment ?? Alignment.topLeft,
                             child: child)))));
       } else {
         child = Container(
             height: widget.truncateHeight,
             width: widget.truncateWidth,
-            child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(), child: child));
+            child: SingleChildScrollView(physics: const NeverScrollableScrollPhysics(), child: child));
       }
     }
 
@@ -199,9 +193,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
             // enableInteractiveSelection,
             false,
             // hasFocus,
-            attrs.containsKey(Attribute.codeBlock.key)
-                ? const EdgeInsets.all(16)
-                : null,
+            attrs.containsKey(Attribute.codeBlock.key) ? const EdgeInsets.all(16) : null,
             embedBuilder,
             _cursorCont,
             indentLevelCounts,
@@ -225,8 +217,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
     return result;
   }
 
-  EditableTextLine _getEditableTextLineFromNode(
-      Line node, BuildContext context) {
+  EditableTextLine _getEditableTextLineFromNode(Line node, BuildContext context) {
     final textLine = TextLine(
       line: node,
       textDirection: _textDirection,
@@ -252,54 +243,51 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
     return editableTextLine;
   }
 
-  Tuple2<double, double> _getVerticalSpacingForLine(
-      Line line, DefaultStyles? defaultStyles) {
+  Tuple2<double, double> _getVerticalSpacingForLine(Line line, DefaultStyles defaultStyles) {
     final attrs = line.style.attributes;
     if (attrs.containsKey(Attribute.header.key)) {
-      final int? level = attrs[Attribute.header.key]!.value;
+      final int level = attrs[Attribute.header.key].value;
       switch (level) {
         case 1:
-          return defaultStyles!.h1!.verticalSpacing;
+          return defaultStyles.h1.verticalSpacing;
         case 2:
-          return defaultStyles!.h2!.verticalSpacing;
+          return defaultStyles.h2.verticalSpacing;
         case 3:
-          return defaultStyles!.h3!.verticalSpacing;
+          return defaultStyles.h3.verticalSpacing;
         default:
           throw 'Invalid level $level';
       }
     }
 
-    return defaultStyles!.paragraph!.verticalSpacing;
+    return defaultStyles.paragraph.verticalSpacing;
   }
 
-  Tuple2<double, double> _getVerticalSpacingForBlock(
-      Block node, DefaultStyles? defaultStyles) {
+  Tuple2<double, double> _getVerticalSpacingForBlock(Block node, DefaultStyles defaultStyles) {
     final attrs = node.style.attributes;
     if (attrs.containsKey(Attribute.blockQuote.key)) {
-      return defaultStyles!.quote!.verticalSpacing;
+      return defaultStyles.quote.verticalSpacing;
     } else if (attrs.containsKey(Attribute.codeBlock.key)) {
-      return defaultStyles!.code!.verticalSpacing;
+      return defaultStyles.code.verticalSpacing;
     } else if (attrs.containsKey(Attribute.indent.key)) {
-      return defaultStyles!.indent!.verticalSpacing;
+      return defaultStyles.indent.verticalSpacing;
     }
-    return defaultStyles!.lists!.verticalSpacing;
+    return defaultStyles.lists.verticalSpacing;
   }
 
-  void _nullSelectionChanged(
-      TextSelection selection, SelectionChangedCause cause) {}
+  void _nullSelectionChanged(TextSelection selection, SelectionChangedCause cause) {}
 }
 
 class _SimpleViewer extends MultiChildRenderObjectWidget {
   _SimpleViewer({
-    required List<Widget> children,
-    required this.document,
-    required this.textDirection,
-    required this.startHandleLayerLink,
-    required this.endHandleLayerLink,
-    required this.onSelectionChanged,
-    required this.scrollBottomInset,
+    @required List<Widget> children,
+    @required this.document,
+    @required this.textDirection,
+    @required this.startHandleLayerLink,
+    @required this.endHandleLayerLink,
+    @required this.onSelectionChanged,
+    @required this.scrollBottomInset,
     this.padding = EdgeInsets.zero,
-    Key? key,
+    Key key,
   }) : super(key: key, children: children);
 
   final Document document;
@@ -329,8 +317,7 @@ class _SimpleViewer extends MultiChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, covariant RenderEditor renderObject) {
+  void updateRenderObject(BuildContext context, covariant RenderEditor renderObject) {
     renderObject
       ..document = document
       ..setContainer(document.root)

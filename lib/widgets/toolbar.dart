@@ -15,19 +15,19 @@ import '../utils/color.dart';
 import 'controller.dart';
 
 typedef OnImagePickCallback = Future<String> Function(File file);
-typedef ImagePickImpl = Future<String?> Function(ImageSource source);
+typedef ImagePickImpl = Future<String> Function(ImageSource source);
 
 class InsertEmbedButton extends StatelessWidget {
   const InsertEmbedButton({
-    required this.controller,
-    required this.icon,
+    @required this.controller,
+    @required this.icon,
     this.fillColor,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   final QuillController controller;
   final IconData icon;
-  final Color? fillColor;
+  final Color fillColor;
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +52,13 @@ class InsertEmbedButton extends StatelessWidget {
 
 class LinkStyleButton extends StatefulWidget {
   const LinkStyleButton({
-    required this.controller,
+    @required this.controller,
     this.icon,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   final QuillController controller;
-  final IconData? icon;
+  final IconData icon;
 
   @override
   _LinkStyleButtonState createState() => _LinkStyleButtonState();
@@ -118,7 +118,7 @@ class _LinkStyleButtonState extends State<LinkStyleButton> {
     ).then(_linkSubmitted);
   }
 
-  void _linkSubmitted(String? value) {
+  void _linkSubmitted(String value) {
     if (value == null || value.isEmpty) {
       return;
     }
@@ -127,7 +127,7 @@ class _LinkStyleButtonState extends State<LinkStyleButton> {
 }
 
 class _LinkDialog extends StatefulWidget {
-  const _LinkDialog({Key? key}) : super(key: key);
+  const _LinkDialog({Key key}) : super(key: key);
 
   @override
   _LinkDialogState createState() => _LinkDialogState();
@@ -168,26 +168,26 @@ typedef ToggleStyleButtonBuilder = Widget Function(
   BuildContext context,
   Attribute attribute,
   IconData icon,
-  Color? fillColor,
-  bool? isToggled,
-  VoidCallback? onPressed,
+  Color fillColor,
+  bool isToggled,
+  VoidCallback onPressed,
 );
 
 class ToggleStyleButton extends StatefulWidget {
   const ToggleStyleButton({
-    required this.attribute,
-    required this.icon,
-    required this.controller,
+    @required this.attribute,
+    @required this.icon,
+    @required this.controller,
     this.fillColor,
     this.childBuilder = defaultToggleStyleButtonBuilder,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   final Attribute attribute;
 
   final IconData icon;
 
-  final Color? fillColor;
+  final Color fillColor;
 
   final QuillController controller;
 
@@ -198,7 +198,7 @@ class ToggleStyleButton extends StatefulWidget {
 }
 
 class _ToggleStyleButtonState extends State<ToggleStyleButton> {
-  bool? _isToggled;
+  bool _isToggled;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
 
@@ -254,7 +254,7 @@ class _ToggleStyleButtonState extends State<ToggleStyleButton> {
   }
 
   void _toggleAttribute() {
-    widget.controller.formatSelection(_isToggled!
+    widget.controller.formatSelection(_isToggled
         ? Attribute.clone(widget.attribute, null)
         : widget.attribute);
   }
@@ -262,17 +262,17 @@ class _ToggleStyleButtonState extends State<ToggleStyleButton> {
 
 class ToggleCheckListButton extends StatefulWidget {
   const ToggleCheckListButton({
-    required this.icon,
-    required this.controller,
-    required this.attribute,
+    @required this.icon,
+    @required this.controller,
+    @required this.attribute,
     this.fillColor,
     this.childBuilder = defaultToggleStyleButtonBuilder,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   final IconData icon;
 
-  final Color? fillColor;
+  final Color fillColor;
 
   final QuillController controller;
 
@@ -285,7 +285,7 @@ class ToggleCheckListButton extends StatefulWidget {
 }
 
 class _ToggleCheckListButtonState extends State<ToggleCheckListButton> {
-  bool? _isToggled;
+  bool _isToggled;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
 
@@ -342,7 +342,7 @@ class _ToggleCheckListButtonState extends State<ToggleCheckListButton> {
   }
 
   void _toggleAttribute() {
-    widget.controller.formatSelection(_isToggled!
+    widget.controller.formatSelection(_isToggled
         ? Attribute.clone(Attribute.unchecked, null)
         : Attribute.unchecked);
   }
@@ -352,9 +352,9 @@ Widget defaultToggleStyleButtonBuilder(
   BuildContext context,
   Attribute attribute,
   IconData icon,
-  Color? fillColor,
-  bool? isToggled,
-  VoidCallback? onPressed,
+  Color fillColor,
+  bool isToggled,
+  VoidCallback onPressed,
 ) {
   final theme = Theme.of(context);
   final isEnabled = onPressed != null;
@@ -377,7 +377,7 @@ Widget defaultToggleStyleButtonBuilder(
 }
 
 class SelectHeaderStyleButton extends StatefulWidget {
-  const SelectHeaderStyleButton({required this.controller, Key? key})
+  const SelectHeaderStyleButton({@required this.controller, Key key})
       : super(key: key);
 
   final QuillController controller;
@@ -388,7 +388,7 @@ class SelectHeaderStyleButton extends StatefulWidget {
 }
 
 class _SelectHeaderStyleButtonState extends State<SelectHeaderStyleButton> {
-  Attribute? _value;
+  Attribute _value;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
 
@@ -437,8 +437,8 @@ class _SelectHeaderStyleButtonState extends State<SelectHeaderStyleButton> {
   }
 }
 
-Widget _selectHeadingStyleButtonBuilder(BuildContext context, Attribute? value,
-    ValueChanged<Attribute?> onSelected, double iconSize) {
+Widget _selectHeadingStyleButtonBuilder(BuildContext context, Attribute value,
+    ValueChanged<Attribute> onSelected, double iconSize) {
   final _valueToText = <Attribute, String>{
     Attribute.header: 'N',
     Attribute.h1: 'H1',
@@ -500,21 +500,21 @@ Widget _selectHeadingStyleButtonBuilder(BuildContext context, Attribute? value,
 
 class ImageButton extends StatefulWidget {
   const ImageButton({
-    required this.icon,
-    required this.controller,
-    required this.imageSource,
+    @required this.icon,
+    @required this.controller,
+    @required this.imageSource,
     this.onImagePickCallback,
     this.imagePickImpl,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   final IconData icon;
 
   final QuillController controller;
 
-  final OnImagePickCallback? onImagePickCallback;
+  final OnImagePickCallback onImagePickCallback;
 
-  final ImagePickImpl? imagePickImpl;
+  final ImagePickImpl imagePickImpl;
 
   final ImageSource imageSource;
 
@@ -545,9 +545,9 @@ class _ImageButtonState extends State<ImageButton> {
     final index = widget.controller.selection.baseOffset;
     final length = widget.controller.selection.extentOffset - index;
 
-    String? imageUrl;
+    String imageUrl;
     if (widget.imagePickImpl != null) {
-      imageUrl = await widget.imagePickImpl!(widget.imageSource);
+      imageUrl = await widget.imagePickImpl(widget.imageSource);
     } else {
       if (kIsWeb) {
         imageUrl = await _pickImageWeb();
@@ -564,29 +564,29 @@ class _ImageButtonState extends State<ImageButton> {
     }
   }
 
-  Future<String?> _pickImageWeb() async {
+  Future<String> _pickImageWeb() async {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) {
       return null;
     }
 
     // Take first, because we don't allow picking multiple files.
-    final fileName = result.files.first.name!;
+    final fileName = result.files.first.name;
     final file = File(fileName);
 
-    return widget.onImagePickCallback!(file);
+    return widget.onImagePickCallback(file);
   }
 
-  Future<String?> _pickImage(ImageSource source) async {
+  Future<String> _pickImage(ImageSource source) async {
     final pickedFile = await ImagePicker().getImage(source: source);
     if (pickedFile == null) {
       return null;
     }
 
-    return widget.onImagePickCallback!(File(pickedFile.path));
+    return widget.onImagePickCallback(File(pickedFile.path));
   }
 
-  Future<String?> _pickImageDesktop() async {
+  Future<String> _pickImageDesktop() async {
     final filePath = await FilesystemPicker.open(
       context: context,
       rootDirectory: await getApplicationDocumentsDirectory(),
@@ -596,7 +596,7 @@ class _ImageButtonState extends State<ImageButton> {
     if (filePath == null || filePath.isEmpty) return null;
 
     final file = File(filePath);
-    return widget.onImagePickCallback!(file);
+    return widget.onImagePickCallback(file);
   }
 }
 
@@ -606,10 +606,10 @@ class _ImageButtonState extends State<ImageButton> {
 /// buttons for each color.
 class ColorButton extends StatefulWidget {
   const ColorButton({
-    required this.icon,
-    required this.controller,
-    required this.background,
-    Key? key,
+    @required this.icon,
+    @required this.controller,
+    @required this.background,
+    Key key,
   }) : super(key: key);
 
   final IconData icon;
@@ -621,10 +621,10 @@ class ColorButton extends StatefulWidget {
 }
 
 class _ColorButtonState extends State<ColorButton> {
-  late bool _isToggledColor;
-  late bool _isToggledBackground;
-  late bool _isWhite;
-  late bool _isWhitebackground;
+  bool _isToggledColor;
+  bool _isToggledBackground;
+  bool _isWhite;
+  bool _isWhitebackground;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
 
@@ -635,9 +635,9 @@ class _ColorButtonState extends State<ColorButton> {
       _isToggledBackground = _getIsToggledBackground(
           widget.controller.getSelectionStyle().attributes);
       _isWhite = _isToggledColor &&
-          _selectionStyle.attributes['color']!.value == '#ffffff';
+          _selectionStyle.attributes['color'].value == '#ffffff';
       _isWhitebackground = _isToggledBackground &&
-          _selectionStyle.attributes['background']!.value == '#ffffff';
+          _selectionStyle.attributes['background'].value == '#ffffff';
     });
   }
 
@@ -647,9 +647,9 @@ class _ColorButtonState extends State<ColorButton> {
     _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
     _isToggledBackground = _getIsToggledBackground(_selectionStyle.attributes);
     _isWhite = _isToggledColor &&
-        _selectionStyle.attributes['color']!.value == '#ffffff';
+        _selectionStyle.attributes['color'].value == '#ffffff';
     _isWhitebackground = _isToggledBackground &&
-        _selectionStyle.attributes['background']!.value == '#ffffff';
+        _selectionStyle.attributes['background'].value == '#ffffff';
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -671,9 +671,9 @@ class _ColorButtonState extends State<ColorButton> {
       _isToggledBackground =
           _getIsToggledBackground(_selectionStyle.attributes);
       _isWhite = _isToggledColor &&
-          _selectionStyle.attributes['color']!.value == '#ffffff';
+          _selectionStyle.attributes['color'].value == '#ffffff';
       _isWhitebackground = _isToggledBackground &&
-          _selectionStyle.attributes['background']!.value == '#ffffff';
+          _selectionStyle.attributes['background'].value == '#ffffff';
     }
   }
 
@@ -687,12 +687,12 @@ class _ColorButtonState extends State<ColorButton> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final iconColor = _isToggledColor && !widget.background && !_isWhite
-        ? stringToColor(_selectionStyle.attributes['color']!.value)
+        ? stringToColor(_selectionStyle.attributes['color'].value)
         : theme.iconTheme.color;
 
     final iconColorBackground =
         _isToggledBackground && widget.background && !_isWhitebackground
-            ? stringToColor(_selectionStyle.attributes['background']!.value)
+            ? stringToColor(_selectionStyle.attributes['background'].value)
             : theme.iconTheme.color;
 
     final fillColor = _isToggledColor && !widget.background && _isWhite
@@ -744,10 +744,10 @@ class _ColorButtonState extends State<ColorButton> {
 
 class HistoryButton extends StatefulWidget {
   const HistoryButton({
-    required this.icon,
-    required this.controller,
-    required this.undo,
-    Key? key,
+    @required this.icon,
+    @required this.controller,
+    @required this.undo,
+    Key key,
   }) : super(key: key);
 
   final IconData icon;
@@ -759,8 +759,8 @@ class HistoryButton extends StatefulWidget {
 }
 
 class _HistoryButtonState extends State<HistoryButton> {
-  Color? _iconColor;
-  late ThemeData theme;
+  Color _iconColor;
+  ThemeData theme;
 
   @override
   Widget build(BuildContext context) {
@@ -817,10 +817,10 @@ class _HistoryButtonState extends State<HistoryButton> {
 
 class IndentButton extends StatefulWidget {
   const IndentButton({
-    required this.icon,
-    required this.controller,
-    required this.isIncrease,
-    Key? key,
+    @required this.icon,
+    @required this.controller,
+    @required this.isIncrease,
+    Key key,
   }) : super(key: key);
 
   final IconData icon;
@@ -873,9 +873,9 @@ class _IndentButtonState extends State<IndentButton> {
 
 class ClearFormatButton extends StatefulWidget {
   const ClearFormatButton({
-    required this.icon,
-    required this.controller,
-    Key? key,
+    @required this.icon,
+    @required this.controller,
+    Key key,
   }) : super(key: key);
 
   final IconData icon;
@@ -910,11 +910,11 @@ class _ClearFormatButtonState extends State<ClearFormatButton> {
 
 class QuillToolbar extends StatefulWidget implements PreferredSizeWidget {
   const QuillToolbar(
-      {required this.children, this.toolBarHeight = 36, Key? key})
+      {@required this.children, this.toolBarHeight = 36, Key key})
       : super(key: key);
 
   factory QuillToolbar.basic({
-    required QuillController controller,
+    @required QuillController controller,
     double toolbarIconSize = 18.0,
     bool showBoldButton = true,
     bool showItalicButton = true,
@@ -933,8 +933,8 @@ class QuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool showLink = true,
     bool showHistory = true,
     bool showHorizontalRule = false,
-    OnImagePickCallback? onImagePickCallback,
-    Key? key,
+    OnImagePickCallback onImagePickCallback,
+    Key key,
   }) {
     controller.iconSize = toolbarIconSize;
 
@@ -1164,19 +1164,19 @@ class _QuillToolbarState extends State<QuillToolbar> {
 
 class QuillIconButton extends StatelessWidget {
   const QuillIconButton({
-    required this.onPressed,
+    @required this.onPressed,
     this.icon,
     this.size = 40,
     this.fillColor,
     this.hoverElevation = 1,
     this.highlightElevation = 1,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
-  final VoidCallback? onPressed;
-  final Widget? icon;
+  final VoidCallback onPressed;
+  final Widget icon;
   final double size;
-  final Color? fillColor;
+  final Color fillColor;
   final double hoverElevation;
   final double highlightElevation;
 
@@ -1200,19 +1200,19 @@ class QuillIconButton extends StatelessWidget {
 
 class QuillDropdownButton<T> extends StatefulWidget {
   const QuillDropdownButton({
-    required this.child,
-    required this.initialValue,
-    required this.items,
-    required this.onSelected,
+    @required this.child,
+    @required this.initialValue,
+    @required this.items,
+    @required this.onSelected,
     this.height = 40,
     this.fillColor,
     this.hoverElevation = 1,
     this.highlightElevation = 1,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   final double height;
-  final Color? fillColor;
+  final Color fillColor;
   final double hoverElevation;
   final double highlightElevation;
   final Widget child;
@@ -1246,7 +1246,7 @@ class _QuillDropdownButtonState<T> extends State<QuillDropdownButton<T>> {
     final popupMenuTheme = PopupMenuTheme.of(context);
     final button = context.findRenderObject() as RenderBox;
     final overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        Overlay.of(context).context.findRenderObject() as RenderBox;
     final position = RelativeRect.fromRect(
       Rect.fromPoints(
         button.localToGlobal(Offset.zero, ancestor: overlay),

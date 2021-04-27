@@ -9,8 +9,8 @@ const Duration _FADE_DURATION = Duration(milliseconds: 250);
 
 class CursorStyle {
   const CursorStyle({
-    required this.color,
-    required this.backgroundColor,
+    @required this.color,
+    @required this.backgroundColor,
     this.width = 1.0,
     this.height,
     this.radius,
@@ -22,9 +22,9 @@ class CursorStyle {
   final Color color;
   final Color backgroundColor;
   final double width;
-  final double? height;
-  final Radius? radius;
-  final Offset? offset;
+  final double height;
+  final Radius radius;
+  final Offset offset;
   final bool opacityAnimates;
   final bool paintAboveText;
 
@@ -56,22 +56,21 @@ class CursorStyle {
 
 class CursorCont extends ChangeNotifier {
   CursorCont({
-    required this.show,
-    required CursorStyle style,
-    required TickerProvider tickerProvider,
-  })   : _style = style,
+    @required this.show,
+    @required CursorStyle style,
+    @required TickerProvider tickerProvider,
+  })  : _style = style,
         _blink = ValueNotifier(false),
         color = ValueNotifier(style.color) {
-    _blinkOpacityCont =
-        AnimationController(vsync: tickerProvider, duration: _FADE_DURATION);
+    _blinkOpacityCont = AnimationController(vsync: tickerProvider, duration: _FADE_DURATION);
     _blinkOpacityCont.addListener(_onColorTick);
   }
 
   final ValueNotifier<bool> show;
   final ValueNotifier<bool> _blink;
   final ValueNotifier<Color> color;
-  late AnimationController _blinkOpacityCont;
-  Timer? _cursorTimer;
+  AnimationController _blinkOpacityCont;
+  Timer _cursorTimer;
   bool _targetCursorVisibility = false;
   CursorStyle _style;
 
@@ -108,8 +107,7 @@ class CursorCont extends ChangeNotifier {
 
   void _cursorWaitForStart(Timer timer) {
     _cursorTimer?.cancel();
-    _cursorTimer =
-        Timer.periodic(const Duration(milliseconds: 500), _cursorTick);
+    _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), _cursorTick);
   }
 
   void startCursorTimer() {
@@ -117,11 +115,9 @@ class CursorCont extends ChangeNotifier {
     _blinkOpacityCont.value = 1.0;
 
     if (style.opacityAnimates) {
-      _cursorTimer = Timer.periodic(
-          const Duration(milliseconds: 150), _cursorWaitForStart);
+      _cursorTimer = Timer.periodic(const Duration(milliseconds: 150), _cursorWaitForStart);
     } else {
-      _cursorTimer =
-          Timer.periodic(const Duration(milliseconds: 500), _cursorTick);
+      _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), _cursorTick);
     }
   }
 
@@ -139,10 +135,7 @@ class CursorCont extends ChangeNotifier {
   }
 
   void startOrStopCursorTimerIfNeeded(bool hasFocus, TextSelection selection) {
-    if (show.value &&
-        _cursorTimer == null &&
-        hasFocus &&
-        selection.isCollapsed) {
+    if (show.value && _cursorTimer == null && hasFocus && selection.isCollapsed) {
       startCursorTimer();
     } else if (_cursorTimer != null && (!hasFocus || !selection.isCollapsed)) {
       stopCursorTimer();
@@ -156,30 +149,28 @@ class CursorCont extends ChangeNotifier {
 }
 
 class CursorPainter {
-  CursorPainter(this.editable, this.style, this.prototype, this.color,
-      this.devicePixelRatio);
+  CursorPainter(this.editable, this.style, this.prototype, this.color, this.devicePixelRatio);
 
-  final RenderContentProxyBox? editable;
+  final RenderContentProxyBox editable;
   final CursorStyle style;
-  final Rect? prototype;
+  final Rect prototype;
   final Color color;
   final double devicePixelRatio;
 
   void paint(Canvas canvas, Offset offset, TextPosition position) {
     assert(prototype != null);
 
-    final caretOffset =
-        editable!.getOffsetForCaret(position, prototype) + offset;
-    var caretRect = prototype!.shift(caretOffset);
+    final caretOffset = editable.getOffsetForCaret(position, prototype) + offset;
+    var caretRect = prototype.shift(caretOffset);
     if (style.offset != null) {
-      caretRect = caretRect.shift(style.offset!);
+      caretRect = caretRect.shift(style.offset);
     }
 
     if (caretRect.left < 0.0) {
       caretRect = caretRect.shift(Offset(-caretRect.left, 0));
     }
 
-    final caretHeight = editable!.getFullHeightForCaret(position);
+    final caretHeight = editable.getFullHeightForCaret(position);
     if (caretHeight != null) {
       switch (defaultTargetPlatform) {
         case TargetPlatform.android:
@@ -207,16 +198,14 @@ class CursorPainter {
       }
     }
 
-    final caretPosition = editable!.localToGlobal(caretRect.topLeft);
+    final caretPosition = editable.localToGlobal(caretRect.topLeft);
     final pixelMultiple = 1.0 / devicePixelRatio;
     caretRect = caretRect.shift(Offset(
         caretPosition.dx.isFinite
-            ? (caretPosition.dx / pixelMultiple).round() * pixelMultiple -
-                caretPosition.dx
+            ? (caretPosition.dx / pixelMultiple).round() * pixelMultiple - caretPosition.dx
             : caretPosition.dx,
         caretPosition.dy.isFinite
-            ? (caretPosition.dy / pixelMultiple).round() * pixelMultiple -
-                caretPosition.dy
+            ? (caretPosition.dy / pixelMultiple).round() * pixelMultiple - caretPosition.dy
             : caretPosition.dy));
 
     final paint = Paint()..color = color;
@@ -225,7 +214,7 @@ class CursorPainter {
       return;
     }
 
-    final caretRRect = RRect.fromRectAndRadius(caretRect, style.radius!);
+    final caretRRect = RRect.fromRectAndRadius(caretRect, style.radius);
     canvas.drawRRect(caretRRect, paint);
   }
 }

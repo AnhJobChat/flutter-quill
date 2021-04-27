@@ -23,28 +23,27 @@ class EditorTextSelectionGestureDetectorBuilder {
   final EditorTextSelectionGestureDetectorBuilderDelegate delegate;
   bool shouldShowSelectionToolbar = true;
 
-  EditorState? getEditor() {
+  EditorState getEditor() {
     return delegate.getEditableTextKey().currentState;
   }
 
-  RenderEditor? getRenderEditor() {
-    return getEditor()!.getRenderEditor();
+  RenderEditor getRenderEditor() {
+    return getEditor().getRenderEditor();
   }
 
   void onTapDown(TapDownDetails details) {
-    getRenderEditor()!.handleTapDown(details);
+    getRenderEditor().handleTapDown(details);
 
     final kind = details.kind;
-    shouldShowSelectionToolbar = kind == null ||
-        kind == PointerDeviceKind.touch ||
-        kind == PointerDeviceKind.stylus;
+    shouldShowSelectionToolbar =
+        kind == null || kind == PointerDeviceKind.touch || kind == PointerDeviceKind.stylus;
   }
 
   void onForcePressStart(ForcePressDetails details) {
     assert(delegate.getForcePressEnabled());
     shouldShowSelectionToolbar = true;
     if (delegate.getSelectionEnabled()) {
-      getRenderEditor()!.selectWordsInRange(
+      getRenderEditor().selectWordsInRange(
         details.globalPosition,
         null,
         SelectionChangedCause.forcePress,
@@ -54,19 +53,19 @@ class EditorTextSelectionGestureDetectorBuilder {
 
   void onForcePressEnd(ForcePressDetails details) {
     assert(delegate.getForcePressEnabled());
-    getRenderEditor()!.selectWordsInRange(
+    getRenderEditor().selectWordsInRange(
       details.globalPosition,
       null,
       SelectionChangedCause.forcePress,
     );
     if (shouldShowSelectionToolbar) {
-      getEditor()!.showToolbar();
+      getEditor().showToolbar();
     }
   }
 
   void onSingleTapUp(TapUpDetails details) {
     if (delegate.getSelectionEnabled()) {
-      getRenderEditor()!.selectWordEdge(SelectionChangedCause.tap);
+      getRenderEditor().selectWordEdge(SelectionChangedCause.tap);
     }
   }
 
@@ -74,7 +73,7 @@ class EditorTextSelectionGestureDetectorBuilder {
 
   void onSingleLongTapStart(LongPressStartDetails details) {
     if (delegate.getSelectionEnabled()) {
-      getRenderEditor()!.selectPositionAt(
+      getRenderEditor().selectPositionAt(
         details.globalPosition,
         null,
         SelectionChangedCause.longPress,
@@ -84,7 +83,7 @@ class EditorTextSelectionGestureDetectorBuilder {
 
   void onSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
     if (delegate.getSelectionEnabled()) {
-      getRenderEditor()!.selectPositionAt(
+      getRenderEditor().selectPositionAt(
         details.globalPosition,
         null,
         SelectionChangedCause.longPress,
@@ -94,30 +93,29 @@ class EditorTextSelectionGestureDetectorBuilder {
 
   void onSingleLongTapEnd(LongPressEndDetails details) {
     if (shouldShowSelectionToolbar) {
-      getEditor()!.showToolbar();
+      getEditor().showToolbar();
     }
   }
 
   void onDoubleTapDown(TapDownDetails details) {
     if (delegate.getSelectionEnabled()) {
-      getRenderEditor()!.selectWord(SelectionChangedCause.tap);
+      getRenderEditor().selectWord(SelectionChangedCause.tap);
       if (shouldShowSelectionToolbar) {
-        getEditor()!.showToolbar();
+        getEditor().showToolbar();
       }
     }
   }
 
   void onDragSelectionStart(DragStartDetails details) {
-    getRenderEditor()!.selectPositionAt(
+    getRenderEditor().selectPositionAt(
       details.globalPosition,
       null,
       SelectionChangedCause.drag,
     );
   }
 
-  void onDragSelectionUpdate(
-      DragStartDetails startDetails, DragUpdateDetails updateDetails) {
-    getRenderEditor()!.selectPositionAt(
+  void onDragSelectionUpdate(DragStartDetails startDetails, DragUpdateDetails updateDetails) {
+    getRenderEditor().selectPositionAt(
       startDetails.globalPosition,
       updateDetails.globalPosition,
       SelectionChangedCause.drag,
@@ -129,8 +127,7 @@ class EditorTextSelectionGestureDetectorBuilder {
   Widget build(HitTestBehavior behavior, Widget child) {
     return EditorTextSelectionGestureDetector(
       onTapDown: onTapDown,
-      onForcePressStart:
-          delegate.getForcePressEnabled() ? onForcePressStart : null,
+      onForcePressStart: delegate.getForcePressEnabled() ? onForcePressStart : null,
       onForcePressEnd: delegate.getForcePressEnabled() ? onForcePressEnd : null,
       onSingleTapUp: onSingleTapUp,
       onSingleTapCancel: onSingleTapCancel,

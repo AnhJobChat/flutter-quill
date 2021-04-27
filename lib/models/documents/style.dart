@@ -11,7 +11,7 @@ class Style {
 
   final Map<String, Attribute> _attributes;
 
-  static Style fromJson(Map<String, dynamic>? attributes) {
+  static Style fromJson(Map<String, dynamic> attributes) {
     if (attributes == null) {
       return Style();
     }
@@ -23,15 +23,18 @@ class Style {
     return Style.attr(result);
   }
 
-  Map<String, dynamic>? toJson() => _attributes.isEmpty
+  Map<String, dynamic> toJson() => _attributes.isEmpty
       ? null
-      : _attributes.map<String, dynamic>((_, attribute) =>
-          MapEntry<String, dynamic>(attribute.key, attribute.value));
+      : _attributes
+          .map<String, dynamic>((_, attribute) => MapEntry<String, dynamic>(attribute.key, attribute.value));
 
   Iterable<String> get keys => _attributes.keys;
 
-  Iterable<Attribute> get values => _attributes.values.sorted(
-      (a, b) => Attribute.getRegistryOrder(a) - Attribute.getRegistryOrder(b));
+  Iterable<Attribute> get values {
+    final values = List.from(_attributes.values)
+      ..sort((a, b) => Attribute.getRegistryOrder(a).compareTo(Attribute.getRegistryOrder(b)));
+    return values.map((e) => e);
+  }
 
   Map<String, Attribute> get attributes => _attributes;
 
@@ -41,14 +44,15 @@ class Style {
 
   bool get isInline => isNotEmpty && values.every((item) => item.isInline);
 
-  bool get isIgnored =>
-      isNotEmpty && values.every((item) => item.scope == AttributeScope.IGNORE);
+  bool get isIgnored => isNotEmpty && values.every((item) => item.scope == AttributeScope.IGNORE);
 
   Attribute get single => _attributes.values.single;
 
   bool containsKey(String key) => _attributes.containsKey(key);
 
-  Attribute? getBlockExceptHeader() {
+  bool containsSame(Attribute attribute) => get(attribute.key) == attribute;
+
+  Attribute getBlockExceptHeader() {
     for (final val in values) {
       if (val.isBlockExceptHeader && val.value != null) {
         return val;
@@ -102,6 +106,8 @@ class Style {
     return Style.attr(m);
   }
 
+  Attribute<T> get<T>(String key) => _attributes[key] as Attribute<T>;
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -110,15 +116,14 @@ class Style {
     if (other is! Style) {
       return false;
     }
-    final typedOther = other;
+    final typedOther = other as Style;
     const eq = MapEquality<String, Attribute>();
     return eq.equals(_attributes, typedOther._attributes);
   }
 
   @override
   int get hashCode {
-    final hashes =
-        _attributes.entries.map((entry) => hash2(entry.key, entry.value));
+    final hashes = _attributes.entries.map((entry) => hash2(entry.key, entry.value));
     return hashObjects(hashes);
   }
 

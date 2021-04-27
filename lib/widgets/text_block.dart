@@ -70,10 +70,10 @@ class EditableTextBlock extends StatelessWidget {
   final Tuple2 verticalSpacing;
   final TextSelection textSelection;
   final Color color;
-  final DefaultStyles? styles;
+  final DefaultStyles styles;
   final bool enableInteractiveSelection;
   final bool hasFocus;
-  final EdgeInsets? contentPadding;
+  final EdgeInsets contentPadding;
   final EmbedBuilder embedBuilder;
   final CursorCont cursorCont;
   final Map<int, int> indentLevelCounts;
@@ -94,14 +94,14 @@ class EditableTextBlock extends StatelessWidget {
         _buildChildren(context, indentLevelCounts));
   }
 
-  BoxDecoration? _getDecorationForBlock(
-      Block node, DefaultStyles? defaultStyles) {
+  BoxDecoration _getDecorationForBlock(
+      Block node, DefaultStyles defaultStyles) {
     final attrs = block.style.attributes;
     if (attrs.containsKey(Attribute.blockQuote.key)) {
-      return defaultStyles!.quote!.decoration;
+      return defaultStyles.quote.decoration;
     }
     if (attrs.containsKey(Attribute.codeBlock.key)) {
-      return defaultStyles!.code!.decoration;
+      return defaultStyles.code.decoration;
     }
     return null;
   }
@@ -121,7 +121,7 @@ class EditableTextBlock extends StatelessWidget {
             line: line,
             textDirection: textDirection,
             embedBuilder: embedBuilder,
-            styles: styles!,
+            styles: styles,
           ),
           _getIndentWidth(),
           _getSpacingForLine(line, index, count, defaultStyles),
@@ -137,7 +137,7 @@ class EditableTextBlock extends StatelessWidget {
     return children.toList(growable: false);
   }
 
-  Widget? _buildLeading(BuildContext context, Line line, int index,
+  Widget _buildLeading(BuildContext context, Line line, int index,
       Map<int, int> indentLevelCounts, int count) {
     final defaultStyles = QuillStyles.getStyles(context, false);
     final attrs = line.style.attributes;
@@ -146,7 +146,7 @@ class EditableTextBlock extends StatelessWidget {
         index: index,
         indentLevelCounts: indentLevelCounts,
         count: count,
-        style: defaultStyles!.leading!.style,
+        style: defaultStyles.leading.style,
         attrs: attrs,
         width: 32,
         padding: 8,
@@ -156,7 +156,7 @@ class EditableTextBlock extends StatelessWidget {
     if (attrs[Attribute.list.key] == Attribute.ul) {
       return _BulletPoint(
         style:
-            defaultStyles!.leading!.style.copyWith(fontWeight: FontWeight.bold),
+            defaultStyles.leading.style.copyWith(fontWeight: FontWeight.bold),
         width: 32,
       );
     }
@@ -164,7 +164,7 @@ class EditableTextBlock extends StatelessWidget {
     if (attrs[Attribute.list.key] == Attribute.checked) {
       return _Checkbox(
         key: UniqueKey(),
-        style: defaultStyles!.leading!.style,
+        style: defaultStyles.leading.style,
         width: 32,
         isChecked: true,
         offset: block.offset + line.offset,
@@ -175,7 +175,7 @@ class EditableTextBlock extends StatelessWidget {
     if (attrs[Attribute.list.key] == Attribute.unchecked) {
       return _Checkbox(
         key: UniqueKey(),
-        style: defaultStyles!.leading!.style,
+        style: defaultStyles.leading.style,
         width: 32,
         offset: block.offset + line.offset,
         onTap: onCheckboxTap,
@@ -187,8 +187,8 @@ class EditableTextBlock extends StatelessWidget {
         index: index,
         indentLevelCounts: indentLevelCounts,
         count: count,
-        style: defaultStyles!.code!.style
-            .copyWith(color: defaultStyles.code!.style.color!.withOpacity(0.4)),
+        style: defaultStyles.code.style
+            .copyWith(color: defaultStyles.code.style.color.withOpacity(0.4)),
         width: 32,
         attrs: attrs,
         padding: 16,
@@ -215,40 +215,40 @@ class EditableTextBlock extends StatelessWidget {
   }
 
   Tuple2 _getSpacingForLine(
-      Line node, int index, int count, DefaultStyles? defaultStyles) {
+      Line node, int index, int count, DefaultStyles defaultStyles) {
     var top = 0.0, bottom = 0.0;
 
     final attrs = block.style.attributes;
     if (attrs.containsKey(Attribute.header.key)) {
-      final level = attrs[Attribute.header.key]!.value;
+      final level = attrs[Attribute.header.key].value;
       switch (level) {
         case 1:
-          top = defaultStyles!.h1!.verticalSpacing.item1;
-          bottom = defaultStyles.h1!.verticalSpacing.item2;
+          top = defaultStyles.h1.verticalSpacing.item1;
+          bottom = defaultStyles.h1.verticalSpacing.item2;
           break;
         case 2:
-          top = defaultStyles!.h2!.verticalSpacing.item1;
-          bottom = defaultStyles.h2!.verticalSpacing.item2;
+          top = defaultStyles.h2.verticalSpacing.item1;
+          bottom = defaultStyles.h2.verticalSpacing.item2;
           break;
         case 3:
-          top = defaultStyles!.h3!.verticalSpacing.item1;
-          bottom = defaultStyles.h3!.verticalSpacing.item2;
+          top = defaultStyles.h3.verticalSpacing.item1;
+          bottom = defaultStyles.h3.verticalSpacing.item2;
           break;
         default:
           throw 'Invalid level $level';
       }
     } else {
-      late Tuple2 lineSpacing;
+      Tuple2 lineSpacing;
       if (attrs.containsKey(Attribute.blockQuote.key)) {
-        lineSpacing = defaultStyles!.quote!.lineSpacing;
+        lineSpacing = defaultStyles.quote.lineSpacing;
       } else if (attrs.containsKey(Attribute.indent.key)) {
-        lineSpacing = defaultStyles!.indent!.lineSpacing;
+        lineSpacing = defaultStyles.indent.lineSpacing;
       } else if (attrs.containsKey(Attribute.list.key)) {
-        lineSpacing = defaultStyles!.lists!.lineSpacing;
+        lineSpacing = defaultStyles.lists.lineSpacing;
       } else if (attrs.containsKey(Attribute.codeBlock.key)) {
-        lineSpacing = defaultStyles!.code!.lineSpacing;
+        lineSpacing = defaultStyles.code.lineSpacing;
       } else if (attrs.containsKey(Attribute.align.key)) {
-        lineSpacing = defaultStyles!.align!.lineSpacing;
+        lineSpacing = defaultStyles.align.lineSpacing;
       }
       top = lineSpacing.item1;
       bottom = lineSpacing.item2;
@@ -269,12 +269,12 @@ class EditableTextBlock extends StatelessWidget {
 class RenderEditableTextBlock extends RenderEditableContainerBox
     implements RenderEditableBox {
   RenderEditableTextBlock({
-    required Block block,
-    required TextDirection textDirection,
-    required EdgeInsetsGeometry padding,
-    required double scrollBottomInset,
-    required Decoration decoration,
-    List<RenderEditableBox>? children,
+    @required Block block,
+    @required TextDirection textDirection,
+    @required EdgeInsetsGeometry padding,
+    @required double scrollBottomInset,
+    @required Decoration decoration,
+    List<RenderEditableBox> children,
     ImageConfiguration configuration = ImageConfiguration.empty,
     EdgeInsets contentPadding = EdgeInsets.zero,
   })  : _decoration = decoration,
@@ -304,7 +304,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
     _savedPadding = value;
   }
 
-  BoxPainter? _painter;
+  BoxPainter _painter;
 
   Decoration get decoration => _decoration;
   Decoration _decoration;
@@ -351,7 +351,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
 
   @override
   TextPosition getPositionForOffset(Offset offset) {
-    final child = childAtOffset(offset)!;
+    final child = childAtOffset(offset);
     final parentData = child.parentData as BoxParentData;
     final localPosition =
         child.getPositionForOffset(offset - parentData.offset);
@@ -374,7 +374,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
   }
 
   @override
-  TextPosition? getPositionAbove(TextPosition position) {
+  TextPosition getPositionAbove(TextPosition position) {
     assert(position.offset < getContainer().length);
 
     final child = childAtPosition(position);
@@ -401,7 +401,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
   }
 
   @override
-  TextPosition? getPositionBelow(TextPosition position) {
+  TextPosition getPositionBelow(TextPosition position) {
     assert(position.offset < getContainer().length);
 
     final child = childAtPosition(position);
@@ -451,7 +451,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
     }
     assert(baseChild != null);
 
-    final basePoint = baseChild!.getBaseEndpointForSelection(
+    final basePoint = baseChild.getBaseEndpointForSelection(
         localSelection(baseChild.getContainer(), selection, true));
     return TextSelectionPoint(
         basePoint.point + (baseChild.parentData as BoxParentData).offset,
@@ -478,7 +478,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
     }
     assert(extentChild != null);
 
-    final extentPoint = extentChild!.getExtentEndpointForSelection(
+    final extentPoint = extentChild.getExtentEndpointForSelection(
         localSelection(extentChild.getContainer(), selection, true));
     return TextSelectionPoint(
         extentPoint.point + (extentChild.parentData as BoxParentData).offset,
@@ -502,7 +502,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
   void _paintDecoration(PaintingContext context, Offset offset) {
     _painter ??= _decoration.createBoxPainter(markNeedsPaint);
 
-    final decorationPadding = resolvedPadding! - _contentPadding;
+    final decorationPadding = resolvedPadding - _contentPadding;
 
     final filledConfiguration =
         configuration.copyWith(size: decorationPadding.deflateSize(size));
@@ -510,18 +510,13 @@ class RenderEditableTextBlock extends RenderEditableContainerBox
 
     final decorationOffset =
         offset.translate(decorationPadding.left, decorationPadding.top);
-    _painter!.paint(context.canvas, decorationOffset, filledConfiguration);
+    _painter.paint(context.canvas, decorationOffset, filledConfiguration);
     if (debugSaveCount != context.canvas.getSaveCount()) {
       throw '${_decoration.runtimeType} painter had mismatching save and restore calls.';
     }
     if (decoration.isComplex) {
       context.setIsComplexHint();
     }
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    return defaultHitTestChildren(result, position: position);
   }
 }
 
@@ -541,7 +536,7 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
   final Tuple2<double, double> padding;
   final double scrollBottomInset;
   final Decoration decoration;
-  final EdgeInsets? contentPadding;
+  final EdgeInsets contentPadding;
 
   EdgeInsets get _padding =>
       EdgeInsets.only(top: padding.item1, bottom: padding.item2);
@@ -575,19 +570,19 @@ class _EditableBlock extends MultiChildRenderObjectWidget {
 
 class _NumberPoint extends StatelessWidget {
   const _NumberPoint({
-    required this.index,
-    required this.indentLevelCounts,
-    required this.count,
-    required this.style,
-    required this.width,
-    required this.attrs,
+    @required this.index,
+    @required this.indentLevelCounts,
+    @required this.count,
+    @required this.style,
+    @required this.width,
+    @required this.attrs,
     this.withDot = true,
     this.padding = 0.0,
-    Key? key,
+    Key key,
   }) : super(key: key);
 
   final int index;
-  final Map<int?, int> indentLevelCounts;
+  final Map<int, int> indentLevelCounts;
   final int count;
   final TextStyle style;
   final double width;
@@ -598,7 +593,7 @@ class _NumberPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var s = index.toString();
-    int? level = 0;
+    int level = 0;
     if (!attrs.containsKey(Attribute.indent.key) &&
         !indentLevelCounts.containsKey(1)) {
       indentLevelCounts.clear();
@@ -610,13 +605,13 @@ class _NumberPoint extends StatelessWidget {
       );
     }
     if (attrs.containsKey(Attribute.indent.key)) {
-      level = attrs[Attribute.indent.key]!.value;
+      level = attrs[Attribute.indent.key].value;
     } else {
       // first level but is back from previous indent level
       // supposed to be "2."
       indentLevelCounts[0] = 1;
     }
-    if (indentLevelCounts.containsKey(level! + 1)) {
+    if (indentLevelCounts.containsKey(level + 1)) {
       // last visited level is done, going up
       indentLevelCounts.remove(level + 1);
     }
@@ -679,9 +674,9 @@ class _NumberPoint extends StatelessWidget {
 
 class _BulletPoint extends StatelessWidget {
   const _BulletPoint({
-    required this.style,
-    required this.width,
-    Key? key,
+    @required this.style,
+    @required this.width,
+    Key key,
   }) : super(key: key);
 
   final TextStyle style;
@@ -700,22 +695,22 @@ class _BulletPoint extends StatelessWidget {
 
 class _Checkbox extends StatelessWidget {
   const _Checkbox({
-    Key? key,
+    Key key,
     this.style,
     this.width,
     this.isChecked = false,
     this.offset,
     this.onTap,
   }) : super(key: key);
-  final TextStyle? style;
-  final double? width;
+  final TextStyle style;
+  final double width;
   final bool isChecked;
-  final int? offset;
-  final Function(int, bool)? onTap;
+  final int offset;
+  final Function(int, bool) onTap;
 
-  void _onCheckboxClicked(bool? newValue) {
+  void _onCheckboxClicked(bool newValue) {
     if (onTap != null && newValue != null && offset != null) {
-      onTap!(offset!, newValue);
+      onTap(offset, newValue);
     }
   }
 

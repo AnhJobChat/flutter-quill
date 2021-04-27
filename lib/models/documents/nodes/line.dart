@@ -17,7 +17,7 @@ import 'node.dart';
 ///
 /// When a line contains an embed, it fully occupies the line, no other embeds
 /// or text nodes are allowed.
-class Line extends Container<Leaf?> {
+class Line extends Container<Leaf> {
   @override
   Leaf get defaultChild => Text();
 
@@ -34,20 +34,18 @@ class Line extends Container<Leaf?> {
   }
 
   /// Returns next [Line] or `null` if this is the last line in the document.
-  Line? get nextLine {
+  Line get nextLine {
     if (!isLast) {
-      return next is Block ? (next as Block).first as Line? : next as Line?;
+      return next is Block ? (next as Block).first as Line : next as Line;
     }
     if (parent is! Block) {
       return null;
     }
 
-    if (parent!.isLast) {
+    if (parent.isLast) {
       return null;
     }
-    return parent!.next is Block
-        ? (parent!.next as Block).first as Line?
-        : parent!.next as Line?;
+    return parent.next is Block ? (parent.next as Block).first as Line : parent.next as Line;
   }
 
   @override
@@ -55,9 +53,7 @@ class Line extends Container<Leaf?> {
 
   @override
   Delta toDelta() {
-    final delta = children
-        .map((child) => child.toDelta())
-        .fold(Delta(), (dynamic a, b) => a.concat(b));
+    final delta = children.map((child) => child.toDelta()).fold(Delta(), (dynamic a, b) => a.concat(b));
     var attributes = style;
     if (parent is Block) {
       final block = parent as Block;
@@ -78,7 +74,7 @@ class Line extends Container<Leaf?> {
   }
 
   @override
-  void insert(int index, Object data, Style? style) {
+  void insert(int index, Object data, Style style) {
     if (data is Embeddable) {
       // We do not check whether this line already has any children here as
       // inserting an embed into a line with other text is acceptable from the
@@ -121,13 +117,13 @@ class Line extends Container<Leaf?> {
   }
 
   @override
-  void retain(int index, int? len, Style? style) {
+  void retain(int index, int len, Style style) {
     if (style == null) {
       return;
     }
     final thisLength = length;
 
-    final local = math.min(thisLength - index, len!);
+    final local = math.min(thisLength - index, len);
     // If index is at newline character then this is a line/block style update.
     final isLineFormat = (index + local == thisLength) && local == 1;
 
@@ -145,13 +141,13 @@ class Line extends Container<Leaf?> {
     final remain = len - local;
     if (remain > 0) {
       assert(nextLine != null);
-      nextLine!.retain(0, remain, style);
+      nextLine.retain(0, remain, style);
     }
   }
 
   @override
-  void delete(int index, int? len) {
-    final local = math.min(length - index, len!);
+  void delete(int index, int len) {
+    final local = math.min(length - index, len);
     final isLFDeleted = index + local == length; // Line feed
     if (isLFDeleted) {
       // Our newline character deleted with all style information.
@@ -167,7 +163,7 @@ class Line extends Container<Leaf?> {
     final remaining = len - local;
     if (remaining > 0) {
       assert(nextLine != null);
-      nextLine!.delete(0, remaining);
+      nextLine.delete(0, remaining);
     }
 
     if (isLFDeleted && isNotEmpty) {
@@ -180,20 +176,20 @@ class Line extends Container<Leaf?> {
 
       // Move remaining children in this line to the next line so that all
       // attributes of nextLine are preserved.
-      nextLine!.moveChildToNewParent(this);
+      nextLine.moveChildToNewParent(this);
       moveChildToNewParent(nextLine);
     }
 
     if (isLFDeleted) {
       // Now we can remove this line.
-      final block = parent!; // remember reference before un-linking.
+      final block = parent; // remember reference before un-linking.
       unlink();
       block.adjust();
     }
   }
 
   /// Formats this line.
-  void _format(Style? newStyle) {
+  void _format(Style newStyle) {
     if (newStyle == null || newStyle.isEmpty) {
       return;
     }
@@ -208,8 +204,7 @@ class Line extends Container<Leaf?> {
       final parentStyle = (parent as Block).style.getBlocksExceptHeader();
       if (blockStyle.value == null) {
         _unwrap();
-      } else if (!const MapEquality()
-          .equals(newStyle.getBlocksExceptHeader(), parentStyle)) {
+      } else if (!const MapEquality().equals(newStyle.getBlocksExceptHeader(), parentStyle)) {
         _unwrap();
         _applyBlockStyles(newStyle);
       } // else the same style, no-op.
@@ -281,7 +276,7 @@ class Line extends Container<Leaf?> {
     }
 
     final query = queryChild(index, false);
-    while (!query.node!.isLast) {
+    while (!query.node.isLast) {
       final next = (last as Leaf)..unlink();
       line.addFirst(next);
     }
@@ -292,7 +287,7 @@ class Line extends Container<Leaf?> {
     return line;
   }
 
-  void _insertSafe(int index, Object data, Style? style) {
+  void _insertSafe(int index, Object data, Style style) {
     assert(index == 0 || (index > 0 && index < length));
 
     if (data is String) {
@@ -308,7 +303,7 @@ class Line extends Container<Leaf?> {
       child.format(style);
     } else {
       final result = queryChild(index, true);
-      result.node!.insert(result.offset, data, style);
+      result.node.insert(result.offset, data, style);
     }
   }
 
@@ -343,13 +338,13 @@ class Line extends Container<Leaf?> {
     }
 
     final data = queryChild(offset, true);
-    var node = data.node as Leaf?;
+    var node = data.node as Leaf;
     if (node != null) {
       result = result.mergeAll(node.style);
       var pos = node.length - data.offset;
-      while (!node!.isLast && pos < local) {
-        node = node.next as Leaf?;
-        _handle(node!.style);
+      while (!node.isLast && pos < local) {
+        node = node.next as Leaf;
+        _handle(node.style);
         pos += node.length;
       }
     }
@@ -362,7 +357,7 @@ class Line extends Container<Leaf?> {
 
     final remaining = len - local;
     if (remaining > 0) {
-      final rest = nextLine!.collectStyle(0, remaining);
+      final rest = nextLine.collectStyle(0, remaining);
       _handle(rest);
     }
 

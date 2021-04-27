@@ -9,7 +9,7 @@ abstract class FormatRule extends Rule {
   RuleType get type => RuleType.FORMAT;
 
   @override
-  void validateArgs(int? len, Object? data, Attribute? attribute) {
+  void validateArgs(int len, Object data, Attribute attribute) {
     assert(len != null);
     assert(data == null);
     assert(attribute != null);
@@ -20,28 +20,25 @@ class ResolveLineFormatRule extends FormatRule {
   const ResolveLineFormatRule();
 
   @override
-  Delta? applyRule(Delta document, int index,
-      {int? len, Object? data, Attribute? attribute}) {
-    if (attribute!.scope != AttributeScope.BLOCK) {
+  Delta applyRule(Delta document, int index, {int len, Object data, Attribute attribute}) {
+    if (attribute.scope != AttributeScope.BLOCK) {
       return null;
     }
 
     var delta = Delta()..retain(index);
     final itr = DeltaIterator(document)..skip(index);
     Operation op;
-    for (var cur = 0; cur < len! && itr.hasNext; cur += op.length!) {
+    for (var cur = 0; cur < len && itr.hasNext; cur += op.length) {
       op = itr.next(len - cur);
-      if (op.data is! String || !(op.data as String).contains('\n')) {
-        delta.retain(op.length!);
+      if (op.data is! String || (op.data as String).contains('\n')) {
+        delta.retain(op.length);
         continue;
       }
       final text = op.data as String;
       final tmp = Delta();
       var offset = 0;
 
-      for (var lineBreak = text.indexOf('\n');
-          lineBreak >= 0;
-          lineBreak = text.indexOf('\n', offset)) {
+      for (var lineBreak = text.indexOf('\n'); lineBreak >= 0; lineBreak = text.indexOf('\n', offset)) {
         tmp..retain(lineBreak - offset)..retain(1, attribute.toJson());
         offset = lineBreak + 1;
       }
@@ -51,10 +48,10 @@ class ResolveLineFormatRule extends FormatRule {
 
     while (itr.hasNext) {
       op = itr.next();
-      final text = op.data is String ? (op.data as String?)! : '';
+      final text = op.data is String ? (op.data as String) : '';
       final lineBreak = text.indexOf('\n');
       if (lineBreak < 0) {
-        delta.retain(op.length!);
+        delta.retain(op.length);
         continue;
       }
       delta..retain(lineBreak)..retain(1, attribute.toJson());
@@ -68,28 +65,27 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
   const FormatLinkAtCaretPositionRule();
 
   @override
-  Delta? applyRule(Delta document, int index,
-      {int? len, Object? data, Attribute? attribute}) {
-    if (attribute!.key != Attribute.link.key || len! > 0) {
+  Delta applyRule(Delta document, int index, {int len, Object data, Attribute attribute}) {
+    if (attribute.key != Attribute.link.key || len > 0) {
       return null;
     }
 
     final delta = Delta();
     final itr = DeltaIterator(document);
     final before = itr.skip(index), after = itr.next();
-    int? beg = index, retain = 0;
+    var beg = index, retain = 0;
     if (before != null && before.hasAttribute(attribute.key)) {
-      beg -= before.length!;
+      beg -= before.length;
       retain = before.length;
     }
     if (after.hasAttribute(attribute.key)) {
-      if (retain != null) retain += after.length!;
+      if (retain != null) retain += after.length;
     }
     if (retain == 0) {
       return null;
     }
 
-    delta..retain(beg)..retain(retain!, attribute.toJson());
+    delta..retain(beg)..retain(retain, attribute.toJson());
     return delta;
   }
 }
@@ -98,9 +94,8 @@ class ResolveInlineFormatRule extends FormatRule {
   const ResolveInlineFormatRule();
 
   @override
-  Delta? applyRule(Delta document, int index,
-      {int? len, Object? data, Attribute? attribute}) {
-    if (attribute!.scope != AttributeScope.INLINE) {
+  Delta applyRule(Delta document, int index, {int len, Object data, Attribute attribute}) {
+    if (attribute.scope != AttributeScope.INLINE) {
       return null;
     }
 
@@ -108,12 +103,12 @@ class ResolveInlineFormatRule extends FormatRule {
     final itr = DeltaIterator(document)..skip(index);
 
     Operation op;
-    for (var cur = 0; cur < len! && itr.hasNext; cur += op.length!) {
+    for (var cur = 0; cur < len && itr.hasNext; cur += op.length) {
       op = itr.next(len - cur);
-      final text = op.data is String ? (op.data as String?)! : '';
+      final text = op.data is String ? (op.data as String) : '';
       var lineBreak = text.indexOf('\n');
       if (lineBreak < 0) {
-        delta.retain(op.length!, attribute.toJson());
+        delta.retain(op.length, attribute.toJson());
         continue;
       }
       var pos = 0;
@@ -122,8 +117,8 @@ class ResolveInlineFormatRule extends FormatRule {
         pos = lineBreak + 1;
         lineBreak = text.indexOf('\n', pos);
       }
-      if (pos < op.length!) {
-        delta.retain(op.length! - pos, attribute.toJson());
+      if (pos < op.length) {
+        delta.retain(op.length - pos, attribute.toJson());
       }
     }
 

@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-Color stringToColor(String? s) {
+Color stringToColor(String s) {
   switch (s) {
     case 'transparent':
       return Colors.transparent;
@@ -106,12 +106,11 @@ Color stringToColor(String? s) {
       return Colors.brown;
   }
 
-  if (s!.startsWith('rgba')) {
+  if (s.startsWith('rgba')) {
     s = s.substring(5); // trim left 'rgba('
     s = s.substring(0, s.length - 1); // trim right ')'
     final arr = s.split(',').map((e) => e.trim()).toList();
-    return Color.fromRGBO(int.parse(arr[0]), int.parse(arr[1]),
-        int.parse(arr[2]), double.parse(arr[3]));
+    return Color.fromRGBO(int.parse(arr[0]), int.parse(arr[1]), int.parse(arr[2]), double.parse(arr[3]));
   }
 
   if (!s.startsWith('#')) {
